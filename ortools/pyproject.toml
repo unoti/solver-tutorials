@@ -1,0 +1,22 @@
+[project]
+name = "ortools"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Richard Lack", email = "rilack@microsoft.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "ortools",
+    "jupyter",
+    "ipython",
+    "ipykernel",
+]
+
+[project.scripts]
+ortools = "ortools:main"
+
+[build-system]
+requires = ["uv_build>=0.8.13,<0.9.0"]
+build-backend = "uv_build"
