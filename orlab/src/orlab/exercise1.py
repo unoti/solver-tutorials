@@ -18,6 +18,7 @@ Mathematical formulation:
 
 from ortools.linear_solver import pywraplp
 
+
 def main():
     print('Bakery Example')
 

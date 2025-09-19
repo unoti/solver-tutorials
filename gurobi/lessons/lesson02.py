@@ -1,7 +1,7 @@
 """
 Problem:
 Delivery company has 2 warehouses and needs to supply 3 stores.
-Minimize transportation gosts.
+Minimize transportation costs.
 
 * Warehouse A has 100 units available
 * Warehouse B has 150 units available
