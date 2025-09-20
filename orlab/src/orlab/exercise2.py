@@ -31,6 +31,8 @@ def main():
     store_3 = 2
     all_stores = range(3)
     all_warehouses = range(2)
+    store_names = [f'store{s+1}' for s in all_stores]
+    warehouse_names = [f'warehouse{w+1}' for w in all_warehouses]
 
     # Framing
     warehouse_supply = {warehouse_a: 100, warehouse_b: 150}
@@ -50,8 +52,7 @@ def main():
     for w in all_warehouses:
         supply = warehouse_supply[w]
         for s in all_stores:
-            store_demand = store_demand[s]
-            max_ship = min(supply, store_demand)
+            max_ship = min(supply, store_demand[s])
             ship_vars[(w, s)] = solver.IntVar(0, max_ship, f'ship_w{w}_s{s}')
 
     # Constraints
@@ -60,4 +61,34 @@ def main():
         demand = store_demand[s]
         constraint = solver.Constraint(demand, demand, f'store_{s}_demand')
         for w in all_warehouses:
-            constraint.SetCoefficient(ship_vars[w,s], 1)
+            constraint.SetCoefficient(ship_vars[w, s], 1)
+    
+    # Objective function (minimize cost)
+    objective = solver.Objective()
+    for w in all_warehouses:
+        for s in all_stores:
+            objective.SetCoefficient(ship_vars[w, s], shipment_costs[w, s])
+    objective.SetMinimization()
+
+    # Solve
+    result_status = solver.Solve()
+
+    # Show Results
+    is_solved = result_status == pywraplp.Solver.OPTIMAL
+
+    if not is_solved:
+        print('Unable to find solution')
+        exit(1)
+    
+    print('Solved! Solution:')
+    print(f'Objective value: Shipment cost={objective.Value()}')
+    for w in all_warehouses:
+        w_shipments = {store_names[s]: ship_vars[w, s].solution_value()
+                       for s in all_stores if ship_vars[w, s].solution_value()}
+        print(f'From warehouse {warehouse_names[w]}: {w_shipments}')
+    # Objective value: Shipment cost=410.0
+    # From warehouse warehouse1: {'store1': 80.0}
+    # From warehouse warehouse2: {'store2': 70.0, 'store3': 90.0}
+
+if __name__ == '__main__':
+    main()
