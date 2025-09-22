@@ -36,7 +36,7 @@ def main():
     labor = 'labor'
 
     # Framing
-    requirement_types = [wood, labor]
+    resource_types = [wood, labor]
     supply_by_type = {wood: 100, labor: 80}
 
     all_items = [chair, table]
@@ -56,17 +56,38 @@ def main():
 
     # Constraints
     # Resources Used - materials and labor
-    for resource in requirement_types:
+    for resource in resource_types:
         constraint = solver.Constraint(0, supply_by_type[resource], f'supply_{resource}')
         for item in all_items:
             constraint.SetCoefficient(produce_vars[item], item_requirements[item, resource])
 
     # Objective
+    objective = solver.Objective()
+    for item in all_items:
+        objective.SetCoefficient(produce_vars[item], profit_by_item[item])
+    objective.SetMaximization()
 
     # Solve
+    result_status = solver.Solve()
 
     # Show Results
+    is_solved = result_status == pywraplp.Solver.OPTIMAL
 
+    if not is_solved:
+        print('Unable to find solution')
+        exit(1)
+    
+    print('Solved! Solution:')
+    print(f'Objective value: Profit={objective.Value()}')
+    for item in all_items:
+        qty = int(produce_vars[item].solution_value())
+        used = [f'{qty * item_requirements[item, resource]} {resource}'
+            for resource in resource_types]
+        used_str = ', '.join(used)
+        print(f'{item}: qty {qty}. {used_str}')
+    # Objective value: Profit=1460.0
+    # chair: qty 17. 34 wood, 51 labor
+    # table: qty 13. 65 wood, 26 labor
 
 if __name__ == '__main__':
     main()
