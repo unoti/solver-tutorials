@@ -1,7 +1,8 @@
 """
 Multi-Product Manufacturing with Setup Costs
 A specialty electronics manufacturer produces 4 different circuit board types on
-3 production lines over a 5-day planning horizon. They want to minimize total costs (production + setup).
+3 production lines over a 5-day planning horizon.
+They want to minimize total costs (production + setup).
 
 Production lines:
 
