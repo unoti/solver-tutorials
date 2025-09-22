@@ -5,9 +5,9 @@ They want to minimize total labor costs while ensuring adequate coverage.
 
 1. Shift structure: [1.0]
 
-- [ ] Day shift (8am-4pm): Needs at least 12 employees, pays $20/hour
-- [ ] Evening shift (4pm-12am): Needs at least 8 employees, pays $22/hour
-- [ ] Night shift (12am-8am): Needs at least 4 employees, pays $25/hour
+- [x] Day shift (8am-4pm): Needs at least 12 employees, pays $20/hour
+- [x] Evening shift (4pm-12am): Needs at least 8 employees, pays $22/hour
+- [x] Night shift (12am-8am): Needs at least 4 employees, pays $25/hour
 
 2. Employee constraints:
 
@@ -96,14 +96,12 @@ def main():
             for shift in all_shifts:
                 constraint.SetCoefficient(sched_vars[day, shift, emp], 1)
 
-
     # [2.3] Each shift must have minimum workers for safety reasons
     for day in all_days:
         for shift in all_shifts:
             constraint = solver.Constraint(shift_minimum, infinity, f'shift_minimum_{day}_{shift}')
             for emp in all_emps:
                 constraint.SetCoefficient(sched_vars[day, shift, emp], 1)
-
 
     # Objective: Minimize cost
     objective = solver.Objective()
@@ -112,6 +110,56 @@ def main():
             for emp in all_emps:
                 objective.SetCoefficient(sched_vars[day, shift, emp], pay)
     objective.SetMinimization()
+
+    # Solve
+    result_status = solver.Solve()
+
+    # Show Results
+    is_solved = result_status == pywraplp.Solver.OPTIMAL
+
+    if not is_solved:
+        print('Unable to find solution')
+        exit(1)
+    
+    print('Solved! Solution:')
+    print(f'Objective value: Cost={objective.Value()}')
+    for day in all_days:
+        print(day)
+        for shift in all_shifts:
+            working_emps = [emp for emp in all_emps
+                            if sched_vars[day, shift, emp].solution_value()]
+            workers_str = ', '.join(working_emps)
+            print(f'  {shift}: ({len(working_emps)} reps) {workers_str}')
+
+    # Objective value: Cost=3488.0
+    # mon
+    #   day: (12 reps) E1, E3, E13, E16, E18, E20, E21, E22, E23, E30, E31, E33
+    #   eve: (8 reps) E14, E15, E19, E24, E25, E29, E32, E35
+    #   ngt: (4 reps) E17, E27, E28, E34
+    # tue
+    #   day: (12 reps) E1, E2, E5, E6, E7, E8, E9, E10, E12, E13, E19, E23
+    #   eve: (8 reps) E3, E15, E16, E20, E24, E25, E28, E29
+    #   ngt: (4 reps) E21, E22, E26, E27
+    # wed
+    #   day: (12 reps) E11, E14, E16, E17, E18, E19, E21, E22, E23, E24, E25, E26
+    #   eve: (8 reps) E2, E8, E9, E20, E31, E33, E34, E35
+    #   ngt: (4 reps) E4, E12, E15, E27
+    # thu
+    #   day: (12 reps) E1, E2, E3, E8, E9, E11, E12, E14, E15, E21, E24, E32
+    #   eve: (8 reps) E5, E6, E7, E10, E18, E19, E20, E22
+    #   ngt: (4 reps) E4, E13, E17, E35
+    # fri
+    #   day: (12 reps) E1, E2, E3, E8, E9, E10, E11, E12, E14, E23, E26, E29
+    #   eve: (8 reps) E4, E5, E6, E7, E13, E17, E27, E28
+    #   ngt: (4 reps) E15, E16, E34, E35
+    # sat
+    #   day: (10 reps) E1, E3, E8, E9, E11, E12, E17, E28, E32, E34
+    #   eve: (7 reps) E2, E4, E5, E6, E13, E18, E25
+    #   ngt: (4 reps) E7, E10, E20, E26
+    # sun
+    #   day: (10 reps) E4, E5, E6, E11, E21, E22, E23, E26, E34, E35
+    #   eve: (7 reps) E25, E28, E29, E30, E31, E32, E33
+    #   ngt: (4 reps) E7, E10, E14, E18
 
 
 if __name__ == '__main__':
