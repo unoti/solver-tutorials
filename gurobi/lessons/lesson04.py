@@ -12,7 +12,7 @@ They want to minimize total labor costs while ensuring adequate coverage.
 2. Employee constraints:
 
 - [2.1] Each employee works exactly one 8-hour shift per day
-- [x] You have 25 total employees available
+- [x] You have 35 total employees available.
 - [2.2] No employee can work more than 5 days per week
 - [/] At least 3 employees must be scheduled for each shift (safety requirement)
     - This will happen naturally unless we change some other data

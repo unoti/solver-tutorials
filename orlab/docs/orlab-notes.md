@@ -40,6 +40,9 @@ Compare these pieces of code which express the same thing:
             objective.SetCoefficient(ship_vars[w, s], shipment_costs[w, s])
     objective.SetMinimization()
 ```
+Note that you can actually do it either way in OR tools:
+you can use `solver.Add(sum(vars[x] for x in ...))`
+or you can use the `SetCoefficient()` method shown above.
 
 ## Ideas
 Make a tutorial that shows how to blend AI agents with solver.
