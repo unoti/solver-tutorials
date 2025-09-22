@@ -89,5 +89,6 @@ def main():
     # chair: qty 17. 34 wood, 51 labor
     # table: qty 13. 65 wood, 26 labor
 
+
 if __name__ == '__main__':
     main()

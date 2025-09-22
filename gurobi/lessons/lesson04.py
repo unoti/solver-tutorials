@@ -16,11 +16,6 @@ They want to minimize total labor costs while ensuring adequate coverage.
 - [2.2] No employee can work more than 5 days per week
 - [/] At least 3 employees must be scheduled for each shift (safety requirement)
     - This will happen naturally unless we change some other data
-**This is a constraints we should do. Bonus item?**
-- [ ] There must be at least 2 shifts off between each employee worked shift
-    - This avoids situations where someone works until midnight friday and then
-    - gets a shift at mightnight saturday or 8am saturday.
-    - Other formulations of this constraint could work like need 3 days off if changing shifts
 
 Business rules:
 
@@ -31,6 +26,13 @@ Night shift has lowest volume but pays premium for inconvenience
 
 Goal: Schedule employees to shifts for one week to minimize total payroll costs
 while meeting all coverage requirements.
+
+**This is a constraint we could do. Bonus item?**
+- [ ] There must be at least 2 shifts off between each employee worked shift
+    - This avoids situations where someone works until midnight friday and then
+    - gets a shift at mightnight saturday or 8am saturday.
+    - Other formulations of this constraint could work like need 3 days off if changing shifts
+
 """
 from dataclasses import dataclass
 from typing import Iterable, List
