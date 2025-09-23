@@ -2,7 +2,7 @@
 Multi-Product Manufacturing with Setup Costs
 A specialty electronics manufacturer produces 4 different circuit board types on
 3 production lines over a 5-day planning horizon.
-They want to minimize total costs (production + setup).
+They want to minimize total costs (production + setup) and maximize profit.
 
 Production lines:
 
@@ -40,6 +40,11 @@ Line A capacity: 40 hours/day x 5 days = 200 hours per week
 Premium board production: 200 hours ÷ 2 hours/unit = 100 Premium boards max per week
     from Line A.
 You can think of the 40 hours per day as something like 5 machines x 8 hour shift = 40 hours.
+
+The hourly costs are how much it costs to produce items on this line.
+So if we make 30 items on a line, we multiply the line's hourly cost by
+the number of hours used to make the items we made, and that is the production cost.
+
 
 Goal: Maximize profit (revenue - production costs - setup costs) while meeting all demands.
 
