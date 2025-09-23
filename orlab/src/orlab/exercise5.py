@@ -34,7 +34,22 @@ Prototype: 15 units
 Business rule: Once you start production of a product on a line,
 you must produce at least 10 units (to justify the setup cost).
 
+
+Clarification about production line capacity:
+Line A capacity: 40 hours/day x 5 days = 200 hours per week
+Premium board production: 200 hours ÷ 2 hours/unit = 100 Premium boards maximum per week
+ from Line A.
+You can think of the 40 hours per day as something like 5 machines x 8 hour shift = 40 hours.
+
 Goal: Maximize profit (revenue - production costs - setup costs) while meeting all demands.
+
+- [ ] production lines
+- [ ] demand constraint
+- [ ] objective function
+- [ ] line compatibility with products
+- [ ] production time constraint
+- [ ] setup costs
+- [ ] On a line + product: Must produce at least 10 units if you make any
 """
 from ortools.linear_solver import pywraplp
 
