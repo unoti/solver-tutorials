@@ -44,10 +44,10 @@ You can think of the 40 hours per day as something like 5 machines x 8 hour shif
 Goal: Maximize profit (revenue - production costs - setup costs) while meeting all demands.
 
 - [x] production lines
-- [ ] demand constraint
-- [ ] objective function
+- [x] demand constraint
+- [x] objective function
 - [ ] line compatibility with products
-- [ ] production time constraint
+- [x] production time constraint
 - [ ] setup costs
 - [ ] On a line + product: Must produce at least 10 units if you make any
 """
