@@ -180,6 +180,11 @@ def main():
                 if not is_compatible(part, line):
                     continue
                 objective.SetCoefficient(x_vars[slot, line, part], part_profit)
+    for part in all_parts:
+        for line in all_lines:
+            if not is_compatible(part, line):
+                continue
+            objective.SetCoefficient(pay_setup[part, line], -setup_costs[part, line])
 
     # Solve
     result_status = solver.Solve()
@@ -206,9 +211,17 @@ def main():
                 qty = qty_by_item.get(part, 0)
                 qty += 1
                 qty_by_item[part] = qty
-            setup_cost_items = [part for slot in all_slots if pay_setup[part, line].solution_value()]
-            setup_cost_str = ', '.join(setup_cost_items)
+        setup_cost_items = [part for part in all_parts if is_compatible(part, line) and pay_setup[part, line].solution_value()]
+        setup_cost_str = ', '.join(setup_cost_items)
         print(f'Line {line}: {qty_by_item}. Setup: {setup_cost_str}')
+
+    # - [ ] Why are we seeing, and paying, setup costs for line A? something is wrong...
+    # Solved! Solution:
+    # Objective value: Profit=34100.0
+    # Production Plan
+    # Line a: {'premium': 50, 'basic': 40, 'prototype': 15}. Setup: premium, standard, basic, prototype
+    # Line b: {'standard': 80, 'basic': 51}. Setup: standard, basic
+    # Line c: {'basic': 109}. Setup: basic
 
 if __name__ == '__main__':
     main()
