@@ -31,7 +31,8 @@ Standard: 80 units
 Basic: 200 units
 Prototype: 15 units
 
-Business rule: Once you start production of a product on a line, you must produce at least 10 units (to justify the setup cost).
+Business rule: Once you start production of a product on a line,
+you must produce at least 10 units (to justify the setup cost).
 
 Goal: Maximize profit (revenue - production costs - setup costs) while meeting all demands.
 """
