@@ -53,7 +53,7 @@ Goal: Maximize profit (revenue - production costs - setup costs) while meeting a
 - [x] objective function
 - [x] line compatibility with products
 - [x] production time constraint
-- [ ] setup costs
+- [.] setup costs
 - [ ] On a line + product: Must produce at least 10 units if you make any
 """
 from ortools.linear_solver import pywraplp
@@ -116,6 +116,17 @@ def main():
                     continue
                 x_vars[slot, line, part] = solver.BoolVar(f'make_{slot}_{line}_{part}')
 
+    # Shadow decision variables: Setup Costs
+    # These are bool variables indicating if a given line is used to make a product.
+    # We will make constraints below to force these to be checked.
+    # See orlab\docs\05-exercise5.ipynb "Modelling One-Time Setup Costs"
+    pay_setup = {} # Key tuple(line, part), true if using this line for this product.
+    for line in all_lines:
+        for part in all_parts:
+            if not is_compatible(part, line):
+                continue
+            pay_setup[part, line] = solver.BoolVar(f'setup_{part}_{line}')
+
     # Constraints
     infinity = solver.infinity()
     # Constraint: A line can only make one kind of thing at a time.
@@ -147,6 +158,20 @@ def main():
                     continue
                 constraint.SetCoefficient(x_vars[slot, line, part], build_hours)
 
+    # Constraint: Setup Costs decision var must be set if making an item on a line.
+    # See orlab\docs\05-exercise5.ipynb "The setup cost constraint expression"
+    for line in all_lines:
+        for part in all_parts:
+            if not is_compatible(part, line):
+                continue
+            for slot in all_slots:
+                # make[slot, line, item] <= pay_setup[line, item].
+                # This transforms to:
+                # make[slot, line, item] - pay_setup[line, item] <= 0.
+                constraint = solver.Constraint(-infinity, 0, f'setup_{line}_{part}_{slot}')
+                constraint.SetCoefficient(x_vars[slot, line, part], 1)
+                constraint.SetCoefficient(pay_setup[part, line], -1)
+
     # Objective: maximize profit
     objective = solver.Objective()
     for slot in all_slots:
@@ -173,14 +198,17 @@ def main():
     for line in all_lines:
         qty_by_item = {}
         for part in all_parts:
+            if not is_compatible(part, line):
+                continue
             for slot in all_slots:
-                if not is_compatible(part, line) or not x_vars[slot, line, part].solution_value():
+                if not x_vars[slot, line, part].solution_value():
                     continue
-                #print(f'slot={slot} line={line} part={part} set')
                 qty = qty_by_item.get(part, 0)
                 qty += 1
                 qty_by_item[part] = qty
-        print(f'Line {line}: {qty_by_item}')
+            setup_cost_items = [part for slot in all_slots if pay_setup[part, line].solution_value()]
+            setup_cost_str = ', '.join(setup_cost_items)
+        print(f'Line {line}: {qty_by_item}. Setup: {setup_cost_str}')
 
 if __name__ == '__main__':
     main()
