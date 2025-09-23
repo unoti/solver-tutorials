@@ -180,11 +180,11 @@ def main():
                 if not is_compatible(part, line):
                     continue
                 objective.SetCoefficient(x_vars[slot, line, part], part_profit)
-    # for part in all_parts:
-    #     for line in all_lines:
-    #         if not is_compatible(part, line):
-    #             continue
-    #         objective.SetCoefficient(pay_setup[part, line], -setup_costs[part, line])
+    for part in all_parts:
+        for line in all_lines:
+            if not is_compatible(part, line):
+                continue
+            objective.SetCoefficient(pay_setup[part, line], -setup_costs[part, line])
 
     # Solve
     result_status = solver.Solve()
@@ -214,15 +214,39 @@ def main():
         setup_cost_items = [part for part in all_parts if is_compatible(part, line) and pay_setup[part, line].solution_value()]
         setup_cost_str = ', '.join(setup_cost_items)
         print(f'Line {line}: {qty_by_item}. Setup: {setup_cost_str}')
+    # Print all setup costs, simple version
+    print('Setup costs:')
+    total_setup_costs = 0
+    for line in all_lines:
+        print(f'  Line {line}:')
+        for part in all_parts:
+            if not is_compatible(part, line):
+                continue
+            if pay_setup[part, line].solution_value():
+                cost = setup_costs[part, line]
+                print(f'    {part} pay {cost}')
+                total_setup_costs += cost
+    print(f'Total setup costs {total_setup_costs}')
 
-    # - [ ] Why are we seeing, and paying, setup costs for line A? something is wrong...
-    # - [ ] Setup costs not being paid. With setup costs profit=34100. without setup costs profit=34100.
-    # Solved! Solution:
+    # - [ ] Why are we seeing, and paying, setup costs for `standard` on line A? something is wrong...
     # Objective value: Profit=34100.0
     # Production Plan
     # Line a: {'premium': 50, 'basic': 40, 'prototype': 15}. Setup: premium, standard, basic, prototype
     # Line b: {'standard': 80, 'basic': 51}. Setup: standard, basic
     # Line c: {'basic': 109}. Setup: basic
+    # Setup costs:
+    #   Line a:
+    #     premium pay 2000
+    #     standard pay 1500
+    #     basic pay 500
+    #     prototype pay 3000
+    #   Line b:
+    #     standard pay 1000
+    #     basic pay 500
+    #   Line c:
+    #     basic pay 500
+    # Total setup costs 9000
+
 
 if __name__ == '__main__':
     main()
