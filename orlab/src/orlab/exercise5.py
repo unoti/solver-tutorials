@@ -37,13 +37,13 @@ you must produce at least 10 units (to justify the setup cost).
 
 Clarification about production line capacity:
 Line A capacity: 40 hours/day x 5 days = 200 hours per week
-Premium board production: 200 hours ÷ 2 hours/unit = 100 Premium boards maximum per week
- from Line A.
+Premium board production: 200 hours ÷ 2 hours/unit = 100 Premium boards max per week
+    from Line A.
 You can think of the 40 hours per day as something like 5 machines x 8 hour shift = 40 hours.
 
 Goal: Maximize profit (revenue - production costs - setup costs) while meeting all demands.
 
-- [ ] production lines
+- [x] production lines
 - [ ] demand constraint
 - [ ] objective function
 - [ ] line compatibility with products
@@ -58,6 +58,111 @@ def main():
     print('Production Planning Example')
     solver = pywraplp.Solver.CreateSolver('SCIP')
 
+    # Framing
+    p_premium = 'premium'
+    p_standard = 'standard'
+    p_basic = 'basic'
+    p_prototype = 'prototype'
+    all_parts = [p_premium, p_standard, p_basic, p_prototype]
+    part_times_per_unit = [2, 1.5, 1, 4]
+    part_profit_per_unit = [200, 120, 80, 500]
+    part_demands = [50, 80, 200, 15]
+
+    all_lines = ['a', 'b', 'c']
+    line_cost_per_hour = [50, 35, 25]
+    line_hours_per_day = [40, 48, 60] # Represents capacity, like 5 machines * 8 hr = 40 hr
+    line_min_qty = 10 # If a line makes a product, it must make at least this qty.
+    part_line_compatibility = set([
+        (p_premium, 'a'),
+        (p_standard, 'a'),
+        (p_standard, 'b'),
+        (p_basic, 'a'),
+        (p_basic, 'b'),
+        (p_basic, 'c'),
+        (p_prototype, 'a'),
+    ])
+
+    setup_costs = {
+        (p_premium, 'a'): 2000,
+        (p_standard, 'a'): 1500,
+        (p_standard, 'b'): 1000,
+        (p_basic, 'a'): 500,
+        (p_basic, 'b'): 500,
+        (p_basic, 'c'): 500,
+        (p_prototype, 'a'): 3000,
+    }
+
+    # A "slot" is a moment when a line chooses to make its next thing.
+    fastest_capacity = max(line_hours_per_day)
+    fastest_item = min(part_times_per_unit)
+    schedule_days = 5
+    max_slots = schedule_days * fastest_capacity * fastest_item # 300
+    all_slots = list(range(max_slots))
+
+    # Decision variables
+    x_vars = {} # Key: tuple(slot, line, part), true if we're making that item in this slot.
+    for slot in all_slots:
+        for line in all_lines:
+            for part in all_parts:
+                x_vars[slot, line, part] = solver.BoolVar(f'make_{slot}_{line}_{part}')
+
+    # Constraints
+    infinity = solver.infinity()
+    # Constraint: A line can only make one kind of thing at a time.
+    for line in all_lines:
+        for slot in all_slots:
+            constraint = solver.Constraint(0, 1, f'single_{line}_{slot}')
+            for part in all_parts:
+                constraint.SetCoefficient(x_vars[slot, line, part], 1)
+
+    # Constraint: Demand must be met.
+    for part, demand_qty in zip(all_parts, part_demands):
+        constraint = solver.Constraint(demand_qty, infinity, f'demand_{part}')
+        for slot in all_slots:
+            for line in all_lines:
+                constraint.SetCoefficient(x_vars[slot, line, part], 1)
+
+    # Constraint: line capacity
+    for line, hrs_per_day in zip(all_lines, line_hours_per_day):
+        capacity_hrs = schedule_days * hrs_per_day
+        # production_hours <= capacity_hrs
+        constraint = solver.Constraint(-infinity, capacity_hrs, f'capacity_{line}')
+        for slot in all_slots:
+            for part, build_hours in zip(all_parts, part_times_per_unit):
+                constraint.SetCoefficient(x_vars[slot, line, part], build_hours)
+
+    # Objective: maximize profit
+    objective = solver.Objective()
+    for slot in all_slots:
+        for line in all_lines:
+            for part, part_profit in zip(all_parts, part_profit_per_unit):
+                objective.SetCoefficient(x_vars[slot, line, part], part_profit)
+
+    # Solve
+    result_status = solver.Solve()
+
+    # Show Results
+    is_solved = result_status == pywraplp.Solver.OPTIMAL
+
+    if not is_solved:
+        print('Unable to find solution')
+        exit(1)
+
+    print('Solved! Solution:')
+    print(f'Objective value: Profit={objective.Value()}')
+
+    print('Production Plan')
+    for line in all_lines:
+        qty_by_item = {}
+        for part in all_parts:
+            for slot in all_slots:
+                if not x_vars[slot, line, part].solution_value():
+                    continue
+                #print(f'slot={slot} line={line} part={part} set')
+                qty = qty_by_item.get(part, 0)
+                qty += 1
+                qty_by_item[part] = qty
+        print(f'Line {line}: {qty_by_item}')
 
 if __name__ == '__main__':
     main()
