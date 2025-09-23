@@ -46,7 +46,7 @@ Goal: Maximize profit (revenue - production costs - setup costs) while meeting a
 - [x] production lines
 - [x] demand constraint
 - [x] objective function
-- [ ] line compatibility with products
+- [x] line compatibility with products
 - [x] production time constraint
 - [ ] setup costs
 - [ ] On a line + product: Must produce at least 10 units if you make any
@@ -92,18 +92,23 @@ def main():
         (p_prototype, 'a'): 3000,
     }
 
-    # A "slot" is a moment when a line chooses to make its next thing.
+    # A "slot" is a an item that a line makes. We will have many of these per line.
     fastest_capacity = max(line_hours_per_day)
     fastest_item = min(part_times_per_unit)
     schedule_days = 5
-    max_slots = schedule_days * fastest_capacity * fastest_item # 300
+    max_slots = schedule_days * fastest_capacity // fastest_item # 300
     all_slots = list(range(max_slots))
+
+    def is_compatible(part: str, line: str) -> bool:
+        return (part, line) in part_line_compatibility
 
     # Decision variables
     x_vars = {} # Key: tuple(slot, line, part), true if we're making that item in this slot.
     for slot in all_slots:
         for line in all_lines:
             for part in all_parts:
+                if not is_compatible(part, line):
+                    continue
                 x_vars[slot, line, part] = solver.BoolVar(f'make_{slot}_{line}_{part}')
 
     # Constraints
@@ -113,6 +118,8 @@ def main():
         for slot in all_slots:
             constraint = solver.Constraint(0, 1, f'single_{line}_{slot}')
             for part in all_parts:
+                if not is_compatible(part, line):
+                    continue
                 constraint.SetCoefficient(x_vars[slot, line, part], 1)
 
     # Constraint: Demand must be met.
@@ -120,6 +127,8 @@ def main():
         constraint = solver.Constraint(demand_qty, infinity, f'demand_{part}')
         for slot in all_slots:
             for line in all_lines:
+                if not is_compatible(part, line):
+                    continue
                 constraint.SetCoefficient(x_vars[slot, line, part], 1)
 
     # Constraint: line capacity
@@ -129,6 +138,8 @@ def main():
         constraint = solver.Constraint(-infinity, capacity_hrs, f'capacity_{line}')
         for slot in all_slots:
             for part, build_hours in zip(all_parts, part_times_per_unit):
+                if not is_compatible(part, line):
+                    continue
                 constraint.SetCoefficient(x_vars[slot, line, part], build_hours)
 
     # Objective: maximize profit
@@ -136,6 +147,8 @@ def main():
     for slot in all_slots:
         for line in all_lines:
             for part, part_profit in zip(all_parts, part_profit_per_unit):
+                if not is_compatible(part, line):
+                    continue
                 objective.SetCoefficient(x_vars[slot, line, part], part_profit)
 
     # Solve
@@ -156,7 +169,7 @@ def main():
         qty_by_item = {}
         for part in all_parts:
             for slot in all_slots:
-                if not x_vars[slot, line, part].solution_value():
+                if not is_compatible(part, line) or not x_vars[slot, line, part].solution_value():
                     continue
                 #print(f'slot={slot} line={line} part={part} set')
                 qty = qty_by_item.get(part, 0)
