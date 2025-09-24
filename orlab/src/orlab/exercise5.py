@@ -205,6 +205,7 @@ def main():
                     continue
                 production_cost = line_cost * part_time
                 objective.SetCoefficient(x_vars[slot, line, part], part_profit - production_cost) # Profit per part
+    objective.SetMaximization() # Beware. It'll *almost* work without this line.
 
     # Objective component: Setup cost per distinct item made on each line
     for part in all_parts:
@@ -258,25 +259,24 @@ def main():
     print(f'Total setup costs {total_setup_costs}')
     
 """
-Production Planning Example
 Solved! Solution:
-Objective value: Profit=14700.0
+Objective value: Profit=33300.0
 Production Plan
-Line a: {'premium': 50, 'standard': 10, 'basic': 25, 'prototype': 15}. Setup: premium, standard, basic, prototype
-Line b: {'standard': 70, 'basic': 135}. Setup: standard, basic
-Line c: {'basic': 40}. Setup: basic
+Line a: {'premium': 50, 'prototype': 25}. Setup: premium, prototype
+Line b: {'standard': 160}. Setup: standard
+Line c: {'basic': 300}. Setup: basic
 Setup costs:
   Line a:
     premium pay 2000
-    standard pay 1500
-    basic pay 500
+    standard not paid
+    basic not paid
     prototype pay 3000
   Line b:
     standard pay 1000
-    basic pay 500
+    basic not paid
   Line c:
     basic pay 500
-Total setup costs 9000
+Total setup costs 6500
 """
 
 
