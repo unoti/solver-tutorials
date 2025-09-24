@@ -241,28 +241,14 @@ def main():
                 print(f'    {part} not paid')
     print(f'Total setup costs {total_setup_costs}')
     
-    # Debug: Check if we're actually producing standard on line A
-    print('\nDetailed production by line and part:')
-    for line in all_lines:
-        print(f'Line {line}:')
-        for part in all_parts:
-            if not is_compatible(part, line):
-                continue
-            produced = sum(x_vars[slot, line, part].solution_value() for slot in all_slots)
-            print(f'  {part}: {produced} units')
-            if produced > 0 and not pay_setup[part, line].solution_value():
-                print(f'    ERROR: Producing {part} but not paying setup!')
-            if produced == 0 and pay_setup[part, line].solution_value():
-                print(f'    ERROR: Not producing {part} but paying setup!')
-
 """
 Production Planning Example
 Solved! Solution:
-Objective value: Profit=34100.0
+Objective value: Profit=14700.0
 Production Plan
-Line a: {'premium': 50, 'standard': 1, 'basic': 38, 'prototype': 15}. Setup: premium, standard, basic, prototype
-Line b: {'standard': 79, 'basic': 53}. Setup: standard, basic
-Line c: {'basic': 109}. Setup: basic
+Line a: {'premium': 50, 'standard': 2, 'basic': 37, 'prototype': 15}. Setup: premium, standard, basic, prototype
+Line b: {'standard': 78, 'basic': 123}. Setup: standard, basic
+Line c: {'basic': 40}. Setup: basic
 Setup costs:
   Line a:
     premium pay 2000
@@ -275,18 +261,6 @@ Setup costs:
   Line c:
     basic pay 500
 Total setup costs 9000
-
-Detailed production by line and part:
-Line a:
-  premium: 50.0 units
-  standard: 1.0 units
-  basic: 38.0 units
-  prototype: 15.0 units
-Line b:
-  standard: 79.0 units
-  basic: 53.0 units
-Line c:
-  basic: 109.0 units
 """
 
 
