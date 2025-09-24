@@ -262,8 +262,8 @@ Production Planning Example
 Solved! Solution:
 Objective value: Profit=14700.0
 Production Plan
-Line a: {'premium': 50, 'standard': 2, 'basic': 37, 'prototype': 15}. Setup: premium, standard, basic, prototype
-Line b: {'standard': 78, 'basic': 123}. Setup: standard, basic
+Line a: {'premium': 50, 'standard': 10, 'basic': 25, 'prototype': 15}. Setup: premium, standard, basic, prototype
+Line b: {'standard': 70, 'basic': 135}. Setup: standard, basic
 Line c: {'basic': 40}. Setup: basic
 Setup costs:
   Line a:
