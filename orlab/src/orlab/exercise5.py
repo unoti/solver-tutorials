@@ -159,7 +159,6 @@ def main():
                 constraint.SetCoefficient(x_vars[slot, line, part], build_hours)
 
     # Constraint: Setup Costs decision var must be set if making an item on a line.
-    # Use your original approach but ensure it works correctly
     for line in all_lines:
         for part in all_parts:
             if not is_compatible(part, line):
