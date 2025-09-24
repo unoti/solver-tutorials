@@ -53,7 +53,8 @@ Goal: Maximize profit (revenue - production costs - setup costs) while meeting a
 - [x] objective function
 - [x] line compatibility with products
 - [x] production time constraint
-- [.] setup costs
+- [x] setup costs
+- [x] Line production costs
 - [ ] On a line + product: Must produce at least 10 units if you make any
 """
 from ortools.linear_solver import pywraplp
@@ -180,12 +181,16 @@ def main():
 
     # Objective: maximize profit
     objective = solver.Objective()
+    # Objective component: Profit per manufactured part
     for slot in all_slots:
-        for line in all_lines:
-            for part, part_profit in zip(all_parts, part_profit_per_unit):
+        for line, line_cost in zip(all_lines, line_cost_per_hour):
+            for part, part_profit, part_time in zip(all_parts, part_profit_per_unit, part_times_per_unit):
                 if not is_compatible(part, line):
                     continue
-                objective.SetCoefficient(x_vars[slot, line, part], part_profit)
+                production_cost = line_cost * part_time
+                objective.SetCoefficient(x_vars[slot, line, part], part_profit - production_cost) # Profit per part
+
+    # Objective component: Setup cost per distinct item made on each line
     for part in all_parts:
         for line in all_lines:
             if not is_compatible(part, line):
