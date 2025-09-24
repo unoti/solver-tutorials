@@ -55,7 +55,7 @@ Goal: Maximize profit (revenue - production costs - setup costs) while meeting a
 - [x] production time constraint
 - [x] setup costs
 - [x] Line production costs
-- [ ] On a line + product: Must produce at least 10 units if you make any
+- [x] On a line + product: Must produce at least 10 units if you make any
 """
 from ortools.linear_solver import pywraplp
 
@@ -178,6 +178,22 @@ def main():
             constraint.SetCoefficient(pay_setup[part, line], 1)
             for slot in all_slots:
                 constraint.SetCoefficient(x_vars[slot, line, part], -1)
+
+    # Constraint: Minimum production quantity (10 units if producing any)
+    for line in all_lines:
+        for part in all_parts:
+            if not is_compatible(part, line):
+                continue
+            
+            # If we produce this part on this line, we must make at least 10 units
+            constraint = solver.Constraint(0, infinity, f'min_qty_{line}_{part}')
+            
+            # Sum of all production of this part on this line
+            for slot in all_slots:
+                constraint.SetCoefficient(x_vars[slot, line, part], 1)
+            
+            # Must be >= 10 if pay_setup is true (>= 10 * pay_setup)
+            constraint.SetCoefficient(pay_setup[part, line], -line_min_qty)
 
     # Objective: maximize profit
     objective = solver.Objective()
