@@ -59,3 +59,11 @@ another schedule that doesn't meet everybody's *preferences* but
 pays more overtime.
 
 Then you can iteratively work the schedule.
+
+
+---
+read orlab\docs\06-tank-utilization.md and create a document in read orlab\docs\06-tank-utilization2.md (a file that doesn't exist yet) to describe your strategy to solving this problem.
+
+Give an analysis, and if you can come up with a solution, you can create that in 
+orlab\src\orlab\exercise6b.py (a file that doesn't exist yet)
+---
