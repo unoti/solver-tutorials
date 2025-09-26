@@ -34,13 +34,21 @@ def tank_solve(tanks_df: pd.DataFrame, demands: List[int]) -> Tuple[bool, pd.Dat
         final_remaining = tank_remaining[tank] - capacity_added
         model.Add(final_remaining >= 0)
 
-        # stranded_vars[tank] is set to remainin capacity
-        # if a demand is placed there, otherwise it is zero.
-        model.Add(stranded_vars[tank] == final_remaining)
+        # Tank is used if any demand is placed there
+        tank_is_used = sum(x_vars[tank, demand] for demand in all_demands)
+
+        # stranded_vars[tank] is final remaining if a demand is placed there, otherwise it is zero.
+        # stranded_vars[tank] = final_remaining * tank_is_used
+        big_M = tank_remaining[tank]
+        model.Add(stranded_vars[tank] <= final_remaining)
+        model.Add(stranded_vars[tank] <= big_M * tank_is_used)
+        model.Add(stranded_vars[tank] >= final_remaining - big_M * (1 - tank_is_used))
     
     # Objective: minimize stranded capacity: unused capacity when we touch a tank.
     total_stranded = sum(stranded_vars[tank] for tank in all_tanks)
-    model.Minimize(total_stranded)
+    # We penalize using tanks because we want to pack demands into as few tanks as we can.
+    tank_usage_penalty = sum(1000 * sum(x_vars[tank, demand] for demand in all_demands) for tank in all_tanks)
+    model.Minimize(total_stranded + tank_usage_penalty)
 
     # Solve
     status = model.Solve()
