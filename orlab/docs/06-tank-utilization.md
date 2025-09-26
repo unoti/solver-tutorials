@@ -22,3 +22,13 @@ the future, but we don't have perfect knowledge of future demand.  So we need to
 that we're in the best position we can be for satisfying the future demand.
 
 Trying to full up all the holes in the tanks seems like the best strategy.
+
+
+## Input Information
+```py
+tanks_df = pd.DataFrame({
+    'capacity': [100, 100, 100, 100],
+    'max_level': 95,
+    'current_level': [20, 0, 80, 0],
+})
+```
