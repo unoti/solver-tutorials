@@ -5,6 +5,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Iterable, Sequence, Tuple
 
+import math
+import sys
+
 import pandas as pd
 from ortools.linear_solver import pywraplp
 
@@ -35,10 +38,27 @@ def _lexicographic_weights(spare_capacity: pd.Series) -> dict[int, float]:
 
     priority_order = list(spare_capacity.sort_values(kind="mergesort").index)
     base = float(spare_capacity.sum()) + 1.0
+    if base <= 0.0:
+        raise ValueError("Spare capacity must yield a positive lexicographic base.")
+
+    log_base = math.log(base)
     weights: dict[int, float] = {}
+    max_exponent = len(priority_order) - 1
+    margin = 1.0
+    offset = max(
+        0.0,
+        max_exponent * log_base - math.log(sys.float_info.max) + margin,
+    )
+
+    log_min = math.log(sys.float_info.min)
     for rank, tank in enumerate(priority_order):
         exponent = len(priority_order) - 1 - rank
-        weights[tank] = base**exponent
+        log_weight = exponent * log_base - offset
+        if log_weight <= log_min:
+            weight = sys.float_info.min
+        else:
+            weight = math.exp(log_weight)
+        weights[tank] = weight
     return weights
 
 
