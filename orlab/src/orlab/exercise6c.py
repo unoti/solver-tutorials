@@ -8,6 +8,9 @@ import pandas as pd
 from ortools.linear_solver import pywraplp
 
 
+# The public entry point is deliberately lightweight so that the solver can
+# also be exercised as a standalone script for quick manual experiments.
+
 def tank_solve_c(
     tanks_df: pd.DataFrame,
     demands: Sequence[float],
@@ -135,3 +138,24 @@ def tank_solve_c(
     result["stranded"] = stranded_values
 
     return True, result
+
+  
+  if __name__ == "__main__":
+    # Simple smoke test mirroring the scenario discussed in the exercise
+    # notes.  Keeping this inline avoids a dependency on any external dataset
+    # and provides a convenient way to compare solver variants.
+    demo = pd.DataFrame(
+        {
+            "capacity": [100, 100, 100, 100],
+            "max_level": [95, 95, 95, 95],
+            "current_level": [20, 0, 80, 0],
+        },
+        index=["tank_0", "tank_1", "tank_2", "tank_3"],
+    )
+
+    ok, placement = tank_solve_c(demo, [56.0, 2.0, 18.0, 40.0])
+    if not ok:
+        raise SystemExit("Solver failed to find an optimal solution")
+
+    pd.set_option("display.max_columns", None)
+    print(placement)
