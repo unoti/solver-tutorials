@@ -1,4 +1,16 @@
-"""Lexicographic variant of the tank utilization solver."""
+"""Problem 6: Tank utilization with a lexicographic objective.
+
+As in :mod:`exercise6`, we must pour a handful of demand volumes into tanks
+that already contain liquid.  Every demand belongs to exactly one tank and we
+cannot exceed any tank's remaining capacity.  We judge a plan by the *stranded
+capacity* left in the tanks we touched; the less stranded capacity we create,
+the more options we keep for uncertain future demand.
+
+This variant optimizes stranded capacity lexicographically.  Tanks with tighter
+spare capacity receive exponentially higher weight in the objective, forcing the
+solver to fill them before caring about roomier tanks.  The result concentrates
+leftover space into larger vessels whenever possible.
+"""
 
 from __future__ import annotations
 

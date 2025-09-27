@@ -1,3 +1,20 @@
+"""Problem 6: Tank utilization via mixed-integer programming.
+
+We manage a collection of storage tanks where each tank has a known maximum
+capacity and a current fill level.  A small set of near-term demand volumes is
+known in advance, and every demand must be poured entirely into exactly one
+tank.  The planning goal is to distribute the demands so that the unused
+capacity left behind in the tanks we touch—called *stranded capacity*—is as
+small as possible.  Minimizing stranded capacity keeps the system nimble for
+future, unknown demand by concentrating leftover space into as few tanks as we
+can.
+
+This first implementation encodes the tank utilization model directly using
+OR-Tools' MIP solver.  It assigns each demand to a tank, enforces capacity
+limits, and minimizes a stranded-capacity objective that also nudges the solver
+to use fewer tanks when ties occur.
+"""
+
 from typing import Optional, List, Tuple
 
 import pandas as pd

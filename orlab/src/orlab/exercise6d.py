@@ -1,4 +1,18 @@
-"""Iterative tank utilization solver that concentrates leftover capacity."""
+"""Problem 6: Tank utilization with iterative lexicographic refinement.
+
+We continue the tank utilization theme: route each known demand volume into one
+of several partially filled tanks, never exceeding a tank's spare capacity, and
+seek a placement that minimizes the *stranded capacity* left in tanks we touch.
+Keeping stranded capacity small preserves the flexibility needed to absorb
+future, unknown demands.
+
+This module builds on the lexicographic idea from :mod:`exercise6c`.  It keeps
+every stranded-capacity variable active in the objective, even when a tank ends
+up unused, so that the optimizer always concentrates leftover volume into the
+largest holes.  The helper utilities at the bottom of the file make it easy to
+run multiple demand scenarios in sequence when experimenting from the command
+line.
+"""
 
 from __future__ import annotations
 
