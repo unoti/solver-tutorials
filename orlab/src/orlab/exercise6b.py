@@ -1,4 +1,17 @@
-"""Alternative formulation for the tank utilization problem."""
+"""Problem 6: Tank utilization with explicit stranded-capacity variables.
+
+The tank utilization problem asks us to route a sequence of liquid demands into
+a fixed fleet of tanks.  Each tank has a known maximum level and an initial
+fill, and every demand volume must be committed wholly to one tank.  When we
+place volume into a tank we care about the spare room left behind—its stranded
+capacity—because keeping that leftover space concentrated prepares us for
+whatever demand arrives next.
+
+This module expresses the same planning problem as :mod:`exercise6`, but does
+so with explicit ``use_tank`` and ``stranded`` variables.  The structure makes
+the constraints more declarative and exposes hooks for exploring variations,
+such as different tie-breaking penalties on tank usage.
+"""
 
 from __future__ import annotations
 
