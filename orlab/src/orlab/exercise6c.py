@@ -11,7 +11,6 @@ from ortools.linear_solver import pywraplp
 # The public entry point is deliberately lightweight so that the solver can
 # also be exercised as a standalone script for quick manual experiments.
 
-
 def tank_solve_c(
     tanks_df: pd.DataFrame,
     demands: Sequence[float],
@@ -140,8 +139,8 @@ def tank_solve_c(
 
     return True, result
 
-
-if __name__ == "__main__":
+  
+  if __name__ == "__main__":
     # Simple smoke test mirroring the scenario discussed in the exercise
     # notes.  Keeping this inline avoids a dependency on any external dataset
     # and provides a convenient way to compare solver variants.
