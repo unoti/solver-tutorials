@@ -14,10 +14,8 @@ run multiple demand scenarios in sequence when experimenting from the command
 line.
 """
 
-from __future__ import annotations
-
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
-from typing import Iterable, Sequence, Tuple
 
 import math
 import sys
@@ -81,7 +79,7 @@ def tank_solve_d(
     demands: Sequence[float],
     *,
     tank_usage_penalty: float = 1.0,
-) -> Tuple[bool, pd.DataFrame | None]:
+) -> tuple[bool, pd.DataFrame | None]:
     """Assign demands so that stranded capacity is lexicographically minimal.
 
     Compared to :func:`tank_solve_c`, this variant keeps each tank's stranded
