@@ -41,7 +41,8 @@ def _build_solver() -> pywraplp.Solver:
 
 
 def _lexicographic_weights(spare_capacity: pd.Series) -> dict[int, float]:
-    """Return weights that enforce a lexicographic objective.
+    """Prioritize the smallest tanks first, breaking ties by first-seen order.
+    Returns weights that enforce a lexicographic objective.
 
     Tanks with tighter spare capacity receive exponentially larger weights so
     that reducing their stranded volume dominates any trade-off involving lower
@@ -62,6 +63,8 @@ def _lexicographic_weights(spare_capacity: pd.Series) -> dict[int, float]:
         max_exponent * log_base - math.log(sys.float_info.max) + margin,
     )
 
+    # Prioritize smallest spare capacity first, breaking ties by first-seen order.
+    # Achieved via stable sort + inverted rank (highest exponent = smallest capacity).
     log_min = math.log(sys.float_info.min)
     for rank, tank in enumerate(priority_order):
         exponent = len(priority_order) - 1 - rank
