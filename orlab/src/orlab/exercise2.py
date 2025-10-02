@@ -15,6 +15,8 @@ Transportation costs per unit:
 
 Determine how many units to ship from each warehouse to each store to minimize total cost
 while meeting all demands.
+
+- [ ] There's a problem with this solution. Can you find it?
 """
 from ortools.linear_solver import pywraplp
 
