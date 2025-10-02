@@ -67,3 +67,8 @@ read orlab\docs\06-tank-utilization.md and create a document in read orlab\docs\
 Give an analysis, and if you can come up with a solution, you can create that in 
 orlab\src\orlab\exercise6b.py (a file that doesn't exist yet)
 ---
+
+Exercise2 is missing the constraint about warehouse supply.
+    Use this as an opportunity to talk about the importance of:
+    * Being methodical during the implementatin of constraints
+    * Checking the output solutions for reasonableness
